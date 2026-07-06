@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "GeoGuessr Timezone Overlay",
+  "version": "1.1.0",
+
+  "permissions": [
+    "storage"
+  ],
+
+  "host_permissions": [
+    "https://www.geoguessr.com/*",
+    "https://api.timezonedb.com/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.geoguessr.com/*"
+      ],
+      "js": [
+        "timezone-lookup.js",
+        "polygon-loader.js",
+        "polygon-renderer.js",
+        "content.js"
+      ],
+      "css": [
+        "overlay.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "page.js",
+        "combined-now.json"
+      ],
+      "matches": [
+        "https://www.geoguessr.com/*"
+      ]
+    }
+  ],
+
+  "options_page": "options.html",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

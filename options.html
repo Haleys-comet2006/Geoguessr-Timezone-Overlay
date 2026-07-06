@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>GeoGuessr Timezone Reveal — Settings</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 420px;
+      margin: 32px auto;
+      padding: 0 16px;
+      color: #222;
+    }
+    h1 { font-size: 18px; }
+    label { display: block; margin-top: 16px; font-weight: 600; font-size: 13px; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .status { margin-top: 10px; font-size: 13px; }
+    .hint { font-size: 12px; color: #666; margin-top: 4px; }
+    a { color: #1e90ff; }
+  </style>
+</head>
+<body>
+  <h1>GeoGuessr Timezone Reveal — Settings</h1>
+
+  <label for="apiKey">TimeZoneDB API key</label>
+  <input id="apiKey" type="text" placeholder="Paste your free API key here" />
+  <div class="hint">
+    Get a free key at <a href="https://timezonedb.com/register" target="_blank">timezonedb.com/register</a>.
+    Stored locally in your browser only — never sent anywhere except TimeZoneDB.
+  </div>
+
+  <button id="save">Save</button>
+  <div class="status" id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>
