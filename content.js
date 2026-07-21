@@ -139,8 +139,6 @@ function monitorMinimap() {
 
         // Minimap disappeared → round ended
         if (minimapWasVisible && !minimapIsVisible) {
-            console.log("[GGTZ] Minimap disappeared — clearing timezone data");
-
             removeOverlay();
             PolygonRenderer.clearZone();
         }
@@ -152,8 +150,6 @@ function monitorMinimap() {
         childList: true,
         subtree: true
     });
-
-    console.log("[GGTZ] Minimap monitor started");
 }
 /* ---------------------------------------------------------------------- */
 /* Main loop                                                              */
