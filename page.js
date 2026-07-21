@@ -230,7 +230,15 @@ function clearPolygons() {
     window.__GGTZ_POLYGONS = [];
 
 }
+function clearZone() {
 
+    clearPolygons();
+
+    window.postMessage({
+        type: "GG_REMOVE_OVERLAY"
+    }, "*");
+
+}
 async function drawPolygons(features) {
 
     const map = await waitForGoogleMap();
@@ -311,7 +319,7 @@ window.addEventListener("message", event => {
             break;
 
         case "GG_CLEAR_ZONE":
-            clearPolygons();
+            clearZone();
             break;
     }
 

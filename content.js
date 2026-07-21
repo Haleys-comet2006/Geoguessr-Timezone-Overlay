@@ -127,7 +127,34 @@ function updateOverlay(label) {
   const el = ensureOverlay();
   el.textContent = label ? `Timezone: ${label}` : "Timezone: searching for location data...";
 }
+function monitorMinimap() {
+    let minimapWasVisible = !!document.querySelector(
+        '[class*="guess-map_canvasContainer"]'
+    );
 
+    const observer = new MutationObserver(() => {
+        const minimapIsVisible = !!document.querySelector(
+            '[class*="guess-map_canvasContainer"]'
+        );
+
+        // Minimap disappeared → round ended
+        if (minimapWasVisible && !minimapIsVisible) {
+            console.log("[GGTZ] Minimap disappeared — clearing timezone data");
+
+            removeOverlay();
+            PolygonRenderer.clearZone();
+        }
+
+        minimapWasVisible = minimapIsVisible;
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    console.log("[GGTZ] Minimap monitor started");
+}
 /* ---------------------------------------------------------------------- */
 /* Main loop                                                              */
 /* ---------------------------------------------------------------------- */
@@ -146,3 +173,14 @@ async function onNewCoords(coords) {
     await PolygonRenderer.showZoneForTimezone(tz.zoneName);
 }
 setUpNetworkSniffing();
+monitorMinimap();
+window.addEventListener("message", event => {
+
+    if (event.source !== window)
+        return;
+
+    if (event.data.type === "GG_REMOVE_OVERLAY") {
+        removeOverlay();
+    }
+
+});
