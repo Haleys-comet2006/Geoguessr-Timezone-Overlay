@@ -195,19 +195,50 @@ function polygonToPaths(feature) {
 
     const { type, coordinates } = feature.geometry;
 
+    function convertRing(ring) {
+
+        const converted = [];
+
+        for (const [lng, lat] of ring) {
+
+            // All longitudes at the South Pole represent the exact same geographical point.
+            // Google Maps gets confused when we try to draw a polygon with multiple points at the South Pole represented by different longitudes,
+            // so we just set the longitude to 0 in that case.
+            const point = {
+                lat,
+                lng: lat === -90 ? 0 : lng
+            };
+
+            // Avoid duplicate consecutive points
+            const previous = converted[converted.length - 1];
+
+            if (
+                !previous ||
+                previous.lat !== point.lat ||
+                previous.lng !== point.lng
+            ) {
+                converted.push(point);
+            }
+        }
+
+        return converted;
+    }
+
+
     if (type === "Polygon") {
 
         return coordinates.map(ring =>
-            ring.map(([lng, lat]) => ({ lat, lng }))
+            convertRing(ring)
         );
 
     }
+
 
     if (type === "MultiPolygon") {
 
         return coordinates.map(poly =>
             poly.map(ring =>
-                ring.map(([lng, lat]) => ({ lat, lng }))
+                convertRing(ring)
             )
         );
 
