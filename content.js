@@ -36,13 +36,6 @@ function setUpNetworkSniffing() {
 /* ---------------------------------------------------------------------- */
 /* 2. Timezone resolution                                                 */
 /* ---------------------------------------------------------------------- */
-const EUCLA_POLYGON = [
-    [-32.26375420270194, 125.50124915704511],
-    [-32.59867234235907, 125.4712857398562],
-    [-32.0024417738378, 129.02978491361884],
-    [-31.359962223182993, 128.99764415952785],
-    [-31.674508756845196, 125.48659376066715],
-];
 const CLIPPERTON_POLYGON = [
     [10.318071993713488, -109.24413626464006],
     [10.283302720542558, -109.24236885867133],
@@ -59,12 +52,6 @@ async function lookupTimezone(coords) {
     }
 
     result.label = formatUTC(result.gmtOffsetHours);
-    if (pointInPolygon(coords, EUCLA_POLYGON)) {
-
-        result.zoneName = "Australia/Eucla";
-        result.label = "UTC+8:45";
-
-    }
     if (pointInPolygon(coords, CLIPPERTON_POLYGON)){
         result.zoneName = "Pacific/Pitcairn";
         result.gmtOffsetHours = -8;
