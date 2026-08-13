@@ -43,6 +43,12 @@ const EUCLA_POLYGON = [
     [-31.359962223182993, 128.99764415952785],
     [-31.674508756845196, 125.48659376066715],
 ];
+const CLIPPERTON_POLYGON = [
+    [10.318071993713488, -109.24413626464006],
+    [10.283302720542558, -109.24236885867133],
+    [10.288340425898467, -109.19112808606226],
+    [10.322936878880887, -109.18847146374198]
+]
 async function lookupTimezone(coords) {
     if (!coords) return null;
 
@@ -58,6 +64,11 @@ async function lookupTimezone(coords) {
         result.zoneName = "Australia/Eucla";
         result.label = "UTC+8:45";
 
+    }
+    if (pointInPolygon(coords, CLIPPERTON_POLYGON)){
+        result.zoneName = "Pacific/Pitcairn";
+        result.gmtOffsetHours = -8;
+        result.label = "UTC-8";
     }
     return result;
 }
@@ -166,7 +177,7 @@ async function onNewCoords(coords) {
 
     const tz = await lookupTimezone(coords);
     updateOverlay(tz.label);
-    await PolygonRenderer.showZoneForTimezone(tz.zoneName);
+    await PolygonRenderer.showZoneForTimezone(tz.zoneName, tz.gmtOffsetHours);
 }
 setUpNetworkSniffing();
 monitorMinimap();

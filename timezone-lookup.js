@@ -1,78 +1,130 @@
-/**
- * timezone-lookup.js
- *
- * Real timezone resolution via the TimeZoneDB API
- * (https://timezonedb.com/api). Returns the actual IANA zone name
- * (e.g. "Asia/Kolkata"), not a longitude-based guess.
- *
- * Requires a free API key from https://timezonedb.com/register.
- * The key is stored in chrome.storage.local via the options page,
- * not hardcoded here.
- *
- * Includes a small in-memory cache so we don't refire a network
- * request every poll tick for the same coordinates -- the free tier
- * has a request-per-second/day limit.
- */
-
 (function (global) {
-  const CACHE = new Map(); // "lat,lng" (rounded) -> result
-  const CACHE_PRECISION = 2; // round to ~1km to dedupe near-identical fetches
+const CACHE = new Map();
+const CACHE_PRECISION = 2;
 
-  function cacheKey(lat, lng) {
-    return `${lat.toFixed(CACHE_PRECISION)},${lng.toFixed(CACHE_PRECISION)}`;
+let finderPromise = null;
+
+function cacheKey(lat, lng) {
+return `${lat.toFixed(CACHE_PRECISION)},${lng.toFixed(CACHE_PRECISION)}`;
+}
+
+/**
+
+* Load tzf-wasm once and reuse one WasmFinder instance.
+  */
+  async function getFinder() {
+  if (!finderPromise) {
+  finderPromise = (async () => {
+  const moduleUrl = chrome.runtime.getURL(
+  "vendor/tzf-wasm/tzf_wasm.js"
+  );
+
+  const { default: init, WasmFinder } = await import(moduleUrl);
+
+  // Automatically loads tzf_wasm_bg.wasm from the same folder.
+  await init();
+
+  const finder = new WasmFinder();
+  return finder;
+  })();
   }
 
-  function getApiKey() {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(["timezonedbApiKey"], (result) => {
-        resolve(result.timezonedbApiKey || null);
-      });
-    });
+return finderPromise;
+
+}
+
+/**
+
+* Get the current UTC offset for an IANA timezone.
+*
+* Examples:
+* Asia/Tokyo       -> 9
+* Asia/Kolkata     -> 5.5
+* Australia/Eucla  -> 8.75
+* America/Coyhaique -> -3
+  */
+function getCurrentOffsetHours(zoneName) {
+  const now = new Date();
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: zoneName,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+
+  const values = {};
+
+  for (const part of parts) {
+    if (part.type !== "literal") {
+      values[part.type] = Number(part.value);
+    }
   }
 
-  /**
-   * Look up the real timezone for a lat/lng pair.
-   * @returns {Promise<{ zoneName: string, gmtOffsetHours: number, source: "api"|"cache" } | { error: string }>}
-   */
+  const utcEquivalent = Date.UTC(
+    values.year,
+    values.month - 1,
+    values.day,
+    values.hour,
+    values.minute,
+    values.second
+  );
+
+  return Math.round(
+  ((utcEquivalent - now.getTime()) / 3_600_000) * 60) / 60;
+}
+
+/**
+
+* Look up the timezone for a latitude/longitude pair.
+*
+* The public interface remains compatible with the old TimeZoneDB version.
+  */
   async function lookupTimezone(lat, lng) {
-    const key = cacheKey(lat, lng);
-    if (CACHE.has(key)) {
-      return { ...CACHE.get(key), source: "cache" };
-    }
+  const key = cacheKey(lat, lng);
 
-    const apiKey = await getApiKey();
-    if (!apiKey) {
-      return { error: "no_api_key" };
-    }
 
-    const url = `https://api.timezonedb.com/v2.1/get-time-zone?key=${encodeURIComponent(
-      apiKey
-    )}&format=json&by=position&lat=${lat}&lng=${lng}`;
+if (CACHE.has(key)) {
+  return {
+    ...CACHE.get(key),
+    source: "cache",
+  };
+}
 
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        return { error: `http_${res.status}` };
-      }
-      const data = await res.json();
+try {
+  const finder = await getFinder();
 
-      if (data.status !== "OK") {
-        return { error: data.message || "api_error" };
-      }
+  // IMPORTANT: tzf-wasm uses longitude first, latitude second.
+  const zoneName = finder.get_tz_name(lng, lat);
 
-      const result = {
-        zoneName: data.zoneName, // e.g. "Europe/Rome"
-        gmtOffsetHours: data.gmtOffset / 3600,
-        source: "api",
-      };
-      CACHE.set(key, result);
-      return result;
-    } catch (err) {
-      return { error: "network_error" };
-    }
+  if (!zoneName) {
+    console.warn(
+      "[GGTZ] tzf-wasm found no timezone:",
+      lat,
+      lng
+    );
+
+    return { error: "timezone_not_found" };
   }
 
-  global.TZLookup = {
-    lookupTimezone,
+  const result = {
+    zoneName,
+    gmtOffsetHours: getCurrentOffsetHours(zoneName),
+    source: "tzf",
   };
+
+  CACHE.set(key, result);
+  return result;
+
+} catch (err) {
+  console.error("[GGTZ] tzf-wasm lookup failed");
+}
+}
+global.TZLookup = {
+lookupTimezone,
+};
 })(window);
