@@ -91,7 +91,7 @@ The browser's own timezone database is used to determine the current UTC offset 
 
 Because timezone rules occasionally change due to government legislation, there may be brief periods where recently announced changes are not yet reflected in one or more of the timezone databases used by the extension.
 
-The extension includes a mechanism for custom overrides when necessary. For example, special handling is currently included for locations such as **Eucla** and **Clipperton Island** where the standard data does not fully match the timezone interpretation used by the extension.
+The extension includes a mechanism for custom overrides when necessary. For example, special handling is currently included for locations such as **Clipperton Island** where the standard data does not fully match the timezone interpretation used by the extension.
 
 ## Disclaimer
 
