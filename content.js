@@ -42,6 +42,12 @@ const CLIPPERTON_POLYGON = [
     [10.288340425898467, -109.19112808606226],
     [10.322936878880887, -109.18847146374198]
 ]
+const ROCAS_POLYGON = [
+    [-3.852382058510987, -33.83633998628977],
+    [-3.8819427423242985, -33.83093587689467],
+    [-3.883427696612271, -33.77167362091957],
+    [-3.847172382326517, -33.78024895238133],
+  ];
 async function lookupTimezone(coords) {
     if (!coords) return null;
 
@@ -56,6 +62,11 @@ async function lookupTimezone(coords) {
         result.zoneName = "Pacific/Pitcairn";
         result.gmtOffsetHours = -8;
         result.label = "UTC-8";
+    }
+    if (pointInPolygon(coords, ROCAS_POLYGON)){
+        result.zoneName = "Atlantic/Fernando_de_Noronha";
+        result.gmtOffsetHours = -2;
+        result.label = "UTC-2";
     }
     return result;
 }
