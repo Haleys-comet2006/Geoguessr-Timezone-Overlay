@@ -2,7 +2,7 @@
 
 A browser extension that displays the current UTC offset and highlights all regions on the GeoGuessr minimap that currently share the same UTC offset as the Street View location.
 
-Unlike similar tools, this extension correctly supports **30-minute** and **45-minute** time zones (Chatham Islands, South Australia, Northern Territory, Eucla, Myanmar, Cocos Keeling Islands, Nepal, India, Sri Lanka, Afghanistan, Iran, Newfoundland, Marquesas Islands), making it a more accurate learning and practice tool.
+Unlike similar tools, this extension correctly supports **30-minute** and **45-minute** time zones (Chatham Islands, Lord Howe Island during standard time, South Australia, Northern Territory, Eucla, Myanmar, Cocos Keeling Islands, Nepal, India, Sri Lanka, Afghanistan, Iran, Newfoundland, Marquesas Islands), making it a more accurate learning and practice tool.
 
 ## Features
 
@@ -40,8 +40,6 @@ The extension uses two main timezone data sources:
 https://github.com/ringsaturn/tzf-wasm
 
 The timezone data is bundled with the extension, so coordinate lookups do not require an external API.
-
-The currently bundled timezone data version can be seen in the browser console when the extension initializes.
 
 ### timezone-boundary-builder
 
