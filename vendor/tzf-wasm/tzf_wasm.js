@@ -27,22 +27,21 @@ export class WasmFinder {
         }
     }
     /**
+     * GeoJSON FeatureCollection of the timezone's preindex tiles, or
+     * `undefined` when no tile names the timezone.
      * @param {string} tz_name
-     * @returns {string}
+     * @returns {string | undefined}
      */
     get_tz_index_geojson(tz_name) {
-        let deferred2_0;
-        let deferred2_1;
-        try {
-            const ptr0 = passStringToWasm0(tz_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len0 = WASM_VECTOR_LEN;
-            const ret = wasm.wasmfinder_get_tz_index_geojson(this.__wbg_ptr, ptr0, len0);
-            deferred2_0 = ret[0];
-            deferred2_1 = ret[1];
-            return getStringFromWasm0(ret[0], ret[1]);
-        } finally {
-            wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        const ptr0 = passStringToWasm0(tz_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmfinder_get_tz_index_geojson(this.__wbg_ptr, ptr0, len0);
+        let v2;
+        if (ret[0] !== 0) {
+            v2 = getStringFromWasm0(ret[0], ret[1]).slice();
+            wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
         }
+        return v2;
     }
     /**
      * @param {number} lng
@@ -73,28 +72,36 @@ export class WasmFinder {
         return v1;
     }
     /**
+     * GeoJSON FeatureCollection of the timezone's polygons, or `undefined`
+     * when the dataset does not contain the name.
      * @param {string} tz_name
-     * @returns {string}
+     * @returns {string | undefined}
      */
     get_tz_polygon_geojson(tz_name) {
-        let deferred2_0;
-        let deferred2_1;
-        try {
-            const ptr0 = passStringToWasm0(tz_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len0 = WASM_VECTOR_LEN;
-            const ret = wasm.wasmfinder_get_tz_polygon_geojson(this.__wbg_ptr, ptr0, len0);
-            deferred2_0 = ret[0];
-            deferred2_1 = ret[1];
-            return getStringFromWasm0(ret[0], ret[1]);
-        } finally {
-            wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        const ptr0 = passStringToWasm0(tz_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wasmfinder_get_tz_polygon_geojson(this.__wbg_ptr, ptr0, len0);
+        let v2;
+        if (ret[0] !== 0) {
+            v2 = getStringFromWasm0(ret[0], ret[1]).slice();
+            wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
         }
+        return v2;
     }
     constructor() {
         const ret = wasm.wasmfinder_new();
         this.__wbg_ptr = ret;
         WasmFinderFinalization.register(this, this.__wbg_ptr, this);
         return this;
+    }
+    /**
+     * @returns {any[]}
+     */
+    timezonenames() {
+        const ret = wasm.wasmfinder_timezonenames(this.__wbg_ptr);
+        var v1 = getArrayJsValueFromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
     }
 }
 if (Symbol.dispose) WasmFinder.prototype[Symbol.dispose] = WasmFinder.prototype.free;

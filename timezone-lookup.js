@@ -18,7 +18,6 @@ return `${lat.toFixed(CACHE_PRECISION)},${lng.toFixed(CACHE_PRECISION)}`;
   const moduleUrl = chrome.runtime.getURL(
   "vendor/tzf-wasm/tzf_wasm.js"
   );
-
   const { default: init, WasmFinder } = await import(moduleUrl);
 
   // Automatically loads tzf_wasm_bg.wasm from the same folder.
@@ -121,7 +120,11 @@ try {
   return result;
 
 } catch (err) {
-  console.error("[GGTZ] tzf-wasm lookup failed");
+  console.error(
+    "[GGTZ] tzf-wasm lookup failed:",
+    err
+  );
+  return { error: "timezone_lookup_failed" };
 }
 }
 global.TZLookup = {

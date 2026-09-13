@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "tzf-wasm": "^1.2.4"
+    "tzf-wasm": "^2.0.0"
   }
 }
