@@ -7,9 +7,14 @@
   // Manual polygons
   // Coordinates are stored as [latitude, longitude]
   // --------------------------------------------------
-  // Known inconsistency: Trindade Island is also grouped with UTC-3, but it is actually UTC-2.
-  // The polygon for Trindade is not included here, as it currently does not have any panos.
-  // It will be added in the future if any photospheres get uploaded from the island.
+
+  // Known inconsistency: Trindade Island is also grouped with UTC-3,
+  // but it is actually UTC-2.
+  // The polygon for Trindade is not included here, as it currently
+  // does not have any panos.
+  // It will be added in the future if any photospheres get uploaded
+  // from the island.
+
   // Clipperton Island (UTC-8)
   const CLIPPERTON_POLYGON = [
     [10.318071993713488, -109.24413626464006],
@@ -43,7 +48,11 @@
     const { lat, lng } = point;
     let inside = false;
 
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    for (
+      let i = 0, j = ring.length - 1;
+      i < ring.length;
+      j = i++
+    ) {
       const xi = ring[i][0];
       const yi = ring[i][1];
 
@@ -125,6 +134,7 @@
       if (polygonIndex === -1) {
         return feature;
       }
+
       // Don't mutate the original GeoJSON.
       const correctedFeature = structuredClone(feature);
 
@@ -165,7 +175,12 @@
       const tzid = feature.properties?.tzid;
       if (!tzid) continue;
 
-      const offset = getCurrentOffsetHours(tzid);
+      // Use our bundled IANA tzdata instead of Chrome's Intl
+      // timezone database.
+      const offsetMinutes =
+        TZLookup.getCurrentOffsetMinutes(tzid);
+
+      const offset = offsetMinutes / 60;
 
       // Remove the incorrectly classified Rocas polygon before
       // adding the feature to its offset bucket.
@@ -240,35 +255,6 @@
     polygonIndex.get(-2).push(rocasFeature);
   }
 
-  function getCurrentOffsetHours(tzid) {
-    try {
-      const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: tzid,
-        timeZoneName: "longOffset",
-      }).formatToParts(new Date());
-
-      const value = parts.find(
-        (p) => p.type === "timeZoneName"
-      )?.value;
-
-      const match = value?.match(
-        /GMT([+-])(\d{2})(?::(\d{2}))?/
-      );
-
-      if (!match) return 0;
-
-      const sign = match[1] === "+" ? 1 : -1;
-      const hours = Number(match[2]);
-      const minutes = Number(match[3] ?? 0);
-
-      return sign * (
-        hours + minutes / 60
-      );
-    } catch (_) {
-      return 0;
-    }
-  }
-
   async function getFeaturesForZone(
     tzid,
     offsetOverride = null
@@ -282,7 +268,7 @@
     const offset =
       offsetOverride !== null
         ? offsetOverride
-        : getCurrentOffsetHours(tzid);
+        : TZLookup.getCurrentOffsetMinutes(tzid) / 60;
 
     return polygonIndex.get(offset) ?? [];
   }

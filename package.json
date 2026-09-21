@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "timezonecomplete": "^5.15.1",
+    "tzdata": "^1.0.51",
     "tzf-wasm": "^2.0.0"
   }
 }
