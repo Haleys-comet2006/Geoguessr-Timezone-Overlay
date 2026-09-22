@@ -68,6 +68,17 @@ async function lookupTimezone(coords) {
         result.gmtOffsetHours = -2;
         result.label = "UTC-2";
     }
+    // Easter egg: the Eiffel Tower is secretly in Paris, Kiritimati 🇫🇷🇰🇮
+    if (
+        Math.abs(coords.lat - 48.8577792) < 0.00005 &&
+        Math.abs(coords.lng - 2.2951631) < 0.00005
+    ) {
+        console.log("[GGTZ] 🇫🇷 Eiffel Tower Easter Egg → 🇰🇮 UTC+14");
+
+        result.zoneName = "Pacific/Kiritimati";
+        result.gmtOffsetHours = 14;
+        result.label = "UTC+14";
+    }
     return result;
 }
 function formatUTC(hours) {
