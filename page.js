@@ -121,7 +121,7 @@ window.__GGTZ_POLYGONS = [];
 // Search the React fiber tree for the Google Maps instance
 function findGoogleMap() {
     const container = document.querySelector(
-        '[class*="guess-map_canvasContainer"]'
+        '[class*="canvasContainer_"]'
     );
 
     if (!container)
@@ -137,13 +137,10 @@ function findGoogleMap() {
     let fiber = container[fiberKey];
 
     while (fiber) {
-
         const props = fiber.memoizedProps;
 
         if (props) {
-
             for (const value of Object.values(props)) {
-
                 if (
                     value &&
                     typeof value.getProjection === "function" &&
@@ -151,9 +148,7 @@ function findGoogleMap() {
                 ) {
                     return value;
                 }
-
             }
-
         }
 
         fiber = fiber.return;
